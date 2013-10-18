@@ -32,10 +32,9 @@ public class IgnoreCommittersEligibilityFilter implements EligibilityFilter {
 
   @Override
   public boolean shouldDeliverNotification(EventContext event) {
-    String eventUserName = event.getUsername();
+    String eventUserName = event.getUser().getName();
 
-    final Settings settings = settingsService.getSettings(
-        event.getRepository());
+    final Settings settings = settingsService.getSettings(event.getRepository());
     String ignoreCommitters = settings.getString(Notifier.IGNORE_COMMITTERS);
     if (ignoreCommitters == null || eventUserName == null)
       return true;

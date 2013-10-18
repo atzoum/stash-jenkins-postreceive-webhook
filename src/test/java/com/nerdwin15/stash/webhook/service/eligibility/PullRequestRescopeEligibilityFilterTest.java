@@ -13,6 +13,7 @@ import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
 import com.atlassian.stash.pull.PullRequest;
 import com.atlassian.stash.pull.PullRequestRef;
 import com.atlassian.stash.repository.Repository;
+import com.atlassian.stash.user.StashUser;
 
 /**
  * Test case for the {@link PullRequestRescopeEligibilityFilter} class
@@ -25,6 +26,7 @@ public class PullRequestRescopeEligibilityFilterTest {
   private Repository repo;
   private EventContext eventContext;
   private PullRequestRescopedEvent event;
+  private StashUser user;
   private String username = "pinky";
   private int repoId = 1;
   
@@ -35,14 +37,15 @@ public class PullRequestRescopeEligibilityFilterTest {
   public void setUp() throws Exception {
     repo = mock(Repository.class);
     when(repo.getId()).thenReturn(repoId);
-    
+    user = mock(StashUser.class);
+    when(user.getName()).thenReturn(username);
     filter = new PullRequestRescopeEligibilityFilter();
     
     event = mock(PullRequestRescopedEvent.class);
     eventContext = mock(EventContext.class);
     when(eventContext.getEventSource()).thenReturn(event);
     when(eventContext.getRepository()).thenReturn(repo);
-    when(eventContext.getUsername()).thenReturn(username);
+    when(eventContext.getUser()).thenReturn(user);
   }
   
   /**

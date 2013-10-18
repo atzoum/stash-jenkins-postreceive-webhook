@@ -1,6 +1,5 @@
 package com.nerdwin15.stash.webhook.service.eligibility;
 
-
 /**
  * A SendingFilter represents a single filter in an EligibilityFilterChain that
  * determines whether a notification is eligible for deliver of a notification.
@@ -15,7 +14,8 @@ public interface EligibilityFilter {
   /**
    * Determines whether a notification should be delivered based on the provided
    * event.
-   * @param event The event to be analyzed.
+   * @param user The user to be analyzed.
+   * @param repository The relevant repository.
    * @return True if the notification should be delivered or if the particular
    * filter cannot assertively determine that it should not be delivered.
    */

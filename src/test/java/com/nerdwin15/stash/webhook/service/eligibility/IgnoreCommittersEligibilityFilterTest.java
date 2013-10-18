@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
+import com.atlassian.stash.user.StashUser;
 import com.nerdwin15.stash.webhook.Notifier;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 
@@ -24,6 +25,7 @@ public class IgnoreCommittersEligibilityFilterTest {
   private IgnoreCommittersEligibilityFilter filter;
   private Settings settings;
   private Repository repo;
+  private StashUser user;
   private EventContext eventContext;
   private String username = "pinky";
   
@@ -34,6 +36,8 @@ public class IgnoreCommittersEligibilityFilterTest {
   public void setUp() throws Exception {
     settingsService = mock(SettingsService.class);
     repo = mock(Repository.class);
+    user = mock(StashUser.class);
+    when(user.getName()).thenReturn(username);
     filter = new IgnoreCommittersEligibilityFilter(settingsService);
     settings = mock(Settings.class);
     when(settingsService.getSettings(repo)).thenReturn(settings);
@@ -41,7 +45,7 @@ public class IgnoreCommittersEligibilityFilterTest {
     eventContext = mock(EventContext.class);
     when(eventContext.getEventSource()).thenReturn(null);
     when(eventContext.getRepository()).thenReturn(repo);
-    when(eventContext.getUsername()).thenReturn(username);
+    when(eventContext.getUser()).thenReturn(user);
   }
   
   /**

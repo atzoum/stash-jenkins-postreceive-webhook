@@ -1,7 +1,9 @@
 package com.nerdwin15.stash.webhook;
 
 import com.atlassian.event.api.EventListener;
+import com.atlassian.stash.event.pull.PullRequestDeclinedEvent;
 import com.atlassian.stash.event.pull.PullRequestEvent;
+import com.atlassian.stash.event.pull.PullRequestMergedEvent;
 import com.atlassian.stash.event.pull.PullRequestOpenedEvent;
 import com.atlassian.stash.event.pull.PullRequestReopenedEvent;
 import com.atlassian.stash.event.pull.PullRequestRescopedEvent;
@@ -52,27 +54,42 @@ public class PullRequestEventListener {
     handleEvent(event);
   }
   
+  	@EventListener
+	public void onPullRequestRescoped(PullRequestRescopedEvent event) {
+	  handleEvent(event);
+	}
+	
+	@EventListener
+	public void onPullRequestMerged(PullRequestMergedEvent event) {
+		handleEvent(event);
+	}
+	
+	@EventListener
+	public void onPullRequestDeclined(PullRequestDeclinedEvent event) {
+		handleEvent(event);
+	}
+  
   /**
    * Actually handles the event that was triggered. 
    * (Made protected to make unit testing easier)
    * @param event The event to be handled
    */
   protected void handleEvent(PullRequestEvent event) {
-    if (settingsService.getSettings(event.getPullRequest().getToRef()
-        .getRepository()) == null) {
+    if (settingsService.getSettings(event.getPullRequest().getToRef().getRepository()) == null) {
       return;
     }
 
-    String strRef = event.getPullRequest().getFromRef().toString()
-        .replaceFirst(".*refs/heads/", "");
+    String strRef = event.getPullRequest().getFromRef().toString().replaceFirst(".*refs/heads/", "");
     String strSha1 = event.getPullRequest().getFromRef().getLatestChangeset();
 
     EventContext context = new EventContext(event,
         event.getPullRequest().getToRef().getRepository(),
-        event.getUser().getName());
+        event.getUser());
 
-    if (filterChain.shouldDeliverNotification(context))
+    if (filterChain.shouldDeliverNotification(context)) {
       notifier.notifyBackground(context.getRepository(), strRef, strSha1);
+      //notifier.notifyPullRequest(event);
+    }
   }
   
 }

@@ -15,6 +15,7 @@ import com.atlassian.stash.pull.PullRequestRef;
 import com.atlassian.stash.pull.PullRequestService;
 import com.atlassian.stash.pull.PullRequestState;
 import com.atlassian.stash.repository.Repository;
+import com.atlassian.stash.user.StashUser;
 
 /**
  * Test case for the {@link IsMergeableEligibilityFilter} class
@@ -29,6 +30,7 @@ public class IsMergeableEligibilityFilterTest {
   private EventContext eventContext;
   private PullRequest pullRequest;
   private PullRequestRescopedEvent event;
+  private StashUser user;
   private String username = "pinky";
   private int repoId = 1;
   
@@ -39,6 +41,8 @@ public class IsMergeableEligibilityFilterTest {
   public void setUp() throws Exception {
     pullRequestService = mock(PullRequestService.class);
     repo = mock(Repository.class);
+    user = mock(StashUser.class);
+    when(user.getName()).thenReturn(username);
     pullRequest = mock(PullRequest.class);
     eventContext = mock(EventContext.class);
     event = mock(PullRequestRescopedEvent.class);
@@ -51,7 +55,7 @@ public class IsMergeableEligibilityFilterTest {
     when(pullRequest.getState()).thenReturn(PullRequestState.OPEN);
     when(eventContext.getEventSource()).thenReturn(event);
     when(eventContext.getRepository()).thenReturn(repo);
-    when(eventContext.getUsername()).thenReturn(username);
+    when(eventContext.getUser()).thenReturn(user);
   }
   
   /**

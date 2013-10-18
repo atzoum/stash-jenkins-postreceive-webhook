@@ -7,21 +7,21 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import com.atlassian.stash.repository.RefChange;
+import java.util.LinkedList;
+import java.util.List;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
+import com.atlassian.stash.repository.RefChange;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
 import com.atlassian.stash.user.StashUser;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 import com.nerdwin15.stash.webhook.service.eligibility.EventContext;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * Test case for the RepositoryChangeListener class.
@@ -53,6 +53,7 @@ public class RepositoryChangeListenerTest {
   @Test
   public void shouldNotifyWhenChainSaysOk() throws Exception {
     RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
+    StashUser u = mock(StashUser.class);
     Repository repo = mock(Repository.class);
     Settings settings = mock(Settings.class);
 
@@ -81,7 +82,7 @@ public class RepositoryChangeListenerTest {
 
     verify(notifier).notifyBackground(repo, "master", "sha1");
     assertEquals(e, contextCaptor.getValue().getEventSource());
-    assertEquals(username, contextCaptor.getValue().getUsername());
+    assertEquals(username, contextCaptor.getValue().getUser().getName());
     assertEquals(repo, contextCaptor.getValue().getRepository());
   }
 
@@ -117,7 +118,7 @@ public class RepositoryChangeListenerTest {
 
     verify(notifier).notifyBackground(repo, "master", "sha1");
     assertEquals(e, contextCaptor.getValue().getEventSource());
-    assertEquals(null, contextCaptor.getValue().getUsername());
+    assertEquals(null, contextCaptor.getValue().getUser());
     assertEquals(repo, contextCaptor.getValue().getRepository());
   }
 
@@ -126,9 +127,10 @@ public class RepositoryChangeListenerTest {
    */
   @Test
   public void shouldNotifyWhenChainSaysCancel() throws Exception {
-    RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
-    Repository repo = mock(Repository.class);
-    Settings settings = mock(Settings.class);
+	RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
+	StashUser u = mock(StashUser.class);
+	Repository repo = mock(Repository.class);
+	Settings settings = mock(Settings.class);
 
     LinkedList<RefChange> lst = new LinkedList<RefChange>();
     when(e.getRefChanges()).thenReturn(lst);
@@ -154,7 +156,7 @@ public class RepositoryChangeListenerTest {
 
     verify(notifier, never()).notifyBackground(repo, "master", "sha1");
     assertEquals(e, contextCaptor.getValue().getEventSource());
-    assertEquals(username, contextCaptor.getValue().getUsername());
+    assertEquals(username, contextCaptor.getValue().getUser().getName());
     assertEquals(repo, contextCaptor.getValue().getRepository());
   }
   
@@ -245,13 +247,13 @@ public class RepositoryChangeListenerTest {
     EventContext ctx = captures.get(0);
     verify(notifier).notifyBackground(repo, "master", "sha1");
     assertEquals(e, ctx.getEventSource());
-    assertEquals(username, ctx.getUsername());
+    assertEquals(username, ctx.getUser().getName());
     assertEquals(repo, ctx.getRepository());
 
     ctx = captures.get(1);
     verify(notifier).notifyBackground(repo, "feature/branch", "sha2");
     assertEquals(e, ctx.getEventSource());
-    assertEquals(username, ctx.getUsername());
+    assertEquals(username, ctx.getUser().getName());
     assertEquals(repo, ctx.getRepository());
   }
 }

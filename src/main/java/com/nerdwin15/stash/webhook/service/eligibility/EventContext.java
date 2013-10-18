@@ -1,6 +1,7 @@
 package com.nerdwin15.stash.webhook.service.eligibility;
 
 import com.atlassian.stash.repository.Repository;
+import com.atlassian.stash.user.StashUser;
 
 /**
  * A context object that will be used throughout the eligibility filter chain.
@@ -13,7 +14,7 @@ public class EventContext {
 
   private final Object eventSource;
   private final Repository repository;
-  private final String username;
+  private final StashUser username;
   
   /**
    * Constructs a new context instance
@@ -21,7 +22,7 @@ public class EventContext {
    * @param repository The repository being affected by the event
    * @param username The username of the user that initiated the event
    */
-  public EventContext(Object source, Repository repository, String username) {
+  public EventContext(Object source, Repository repository, StashUser username) {
     this.eventSource = source;
     this.repository = repository;
     this.username = username;
@@ -43,10 +44,10 @@ public class EventContext {
   }
   
   /**
-   * Gets the {@code username} property.
-   * @return The username of the user that initiated the event
+   * Gets the {@code user} property.
+   * @return The user that initiated the event
    */
-  public String getUsername() {
+  public StashUser getUser() {
     return username;
   }
 }
