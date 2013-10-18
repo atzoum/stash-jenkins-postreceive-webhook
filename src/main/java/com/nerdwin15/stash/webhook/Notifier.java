@@ -14,7 +14,9 @@ import org.apache.http.client.methods.HttpGet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.atlassian.stash.event.pull.PullRequestEvent;
 import com.atlassian.stash.hook.repository.RepositoryHook;
+import com.atlassian.stash.pull.PullRequest;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
 import com.google.common.base.Charsets;
@@ -55,6 +57,18 @@ public class Notifier {
    * Field name for the ignore committers property
    */
   public static final String IGNORE_COMMITTERS = "ignoreCommitters";
+  
+  /**
+   * Field name for the notify for pull requests
+   */
+  public static final String NOTIFY_PULL_REQUESTS = "notifyPullRequests";
+  
+  /**
+   * Field name for the notify for pull requests notification Url
+   */
+  public static final String PULL_REQUESTS_NOTIFICATION_URL = "pullRequestsNotificationUrl";
+  
+  
 
   private static final Logger LOGGER = 
       LoggerFactory.getLogger(Notifier.class);
@@ -126,6 +140,53 @@ public class Notifier {
       }
     }
     return null;
+  }
+  
+  public @Nullable String notifyPullRequest(@Nonnull PullRequestEvent event) {
+	  PullRequest pullRequest = event.getPullRequest();
+	  final Repository repo = pullRequest.getToRef().getRepository();
+	  final RepositoryHook hook = settingsService.getRepositoryHook(repo);
+	    final Settings settings = settingsService.getSettings(repo);
+	    if (hook == null || !hook.isEnabled() || settings == null) {
+	      LOGGER.debug("Hook not configured correctly or not enabled, returning.");
+	      return null;
+	    }
+	    
+	    final Boolean notify = settings.getBoolean(NOTIFY_PULL_REQUESTS, false);
+	    if (!notify) {
+	    	LOGGER.debug("Pull requests notifications not enabled, returning.");
+	    	return null;
+	    }
+	    
+	    String eventName = event.getClass().getSimpleName().replaceAll("PullRequest", "").replaceAll("Event", "").toLowerCase();
+	    String url = settings.getString(PULL_REQUESTS_NOTIFICATION_URL);
+	    final boolean ignoreCerts = settings.getBoolean(IGNORE_CERTS, false);
+	    url = url.replaceAll("\\$pr", urlEncode(String.valueOf(pullRequest.getId())))
+	    		.replaceAll("\\$fr", urlEncode(pullRequest.getFromRef().getId()))
+	    		.replaceAll("\\$fh", urlEncode(pullRequest.getFromRef().getLatestChangeset()))
+	    		.replaceAll("\\$tr", urlEncode(pullRequest.getToRef().getId()))
+	    		.replaceAll("\\$th", urlEncode(pullRequest.getToRef().getLatestChangeset()))
+	    		.replaceAll("\\$event", urlEncode(eventName))
+	    		;
+	    LOGGER.debug("About to send request to url: {}",url);
+	    HttpClient client = null;
+	        try {
+	          client = httpClientFactory.getHttpClient(url.startsWith("https"), ignoreCerts);
+
+	          HttpResponse response = client.execute(new HttpGet(url));
+	          LOGGER.debug("Successfully triggered jenkins with url '{}': ", url);
+	          InputStream content = response.getEntity().getContent();
+	          return CharStreams.toString(
+	              new InputStreamReader(content, Charsets.UTF_8));
+	        } catch (Exception e) {
+	          LOGGER.error("Error triggering jenkins with url '" + url + "'", e);
+	        } finally {
+	          if (client != null) {
+	            client.getConnectionManager().shutdown();
+	            LOGGER.debug("Successfully shutdown connection");
+	          }
+	        }
+	        return null;
   }
 
   /**

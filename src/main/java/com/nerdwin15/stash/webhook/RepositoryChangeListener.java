@@ -38,7 +38,7 @@ public class RepositoryChangeListener {
     if (settingsService.getSettings(event.getRepository()) == null) {
       return;
     }
-    if (filterChain.shouldDeliverNotification(event))
+    if (filterChain.shouldDeliverNotification(event.getUser(), event.getRepository()))
       notifier.notify(event.getRepository());
   }
   

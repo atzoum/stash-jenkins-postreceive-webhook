@@ -54,7 +54,7 @@ public class IgnoreCommittersEligibilityFilterTest {
   @Test
   public void shouldAllowWhenIgnoredCommittersNull() throws Exception {
     when(settings.getString(Notifier.IGNORE_COMMITTERS)).thenReturn(null);
-    assertTrue(filter.shouldDeliverNotification(event));
+    assertTrue(filter.shouldDeliverNotification(user,repo));
   }
   
   /**
@@ -66,7 +66,7 @@ public class IgnoreCommittersEligibilityFilterTest {
   public void shouldAllowWhenIgnoredCommittersDoesntMatch() throws Exception {
     when(user.getName()).thenReturn("user0");
     when(settings.getString(Notifier.IGNORE_COMMITTERS)).thenReturn("user1");
-    assertTrue(filter.shouldDeliverNotification(event));
+    assertTrue(filter.shouldDeliverNotification(user,repo));
   }
   
   /**
@@ -78,7 +78,7 @@ public class IgnoreCommittersEligibilityFilterTest {
     final String username = "user1";
     when(settings.getString(Notifier.IGNORE_COMMITTERS)).thenReturn(username);
     when(user.getName()).thenReturn(username);
-    assertFalse(filter.shouldDeliverNotification(event));
+    assertFalse(filter.shouldDeliverNotification(user,repo));
   }
   
   /**
@@ -91,7 +91,7 @@ public class IgnoreCommittersEligibilityFilterTest {
     when(settings.getString(Notifier.IGNORE_COMMITTERS)).thenReturn(username 
         + " anotherUser");
     when(user.getName()).thenReturn(username);
-    assertFalse(filter.shouldDeliverNotification(event));
+    assertFalse(filter.shouldDeliverNotification(user,repo));
   }
   
   /**
@@ -104,6 +104,6 @@ public class IgnoreCommittersEligibilityFilterTest {
     event = new MockedPullRequestMergedEvent();
     ((MockedPullRequestMergedEvent) event).setRepository(repo);
     ((MockedPullRequestMergedEvent) event).setUser(user);
-    assertTrue(filter.shouldDeliverNotification(event));
+    assertTrue(filter.shouldDeliverNotification(user,repo));
   }
 }

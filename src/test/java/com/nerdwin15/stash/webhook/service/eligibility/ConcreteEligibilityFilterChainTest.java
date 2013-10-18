@@ -12,6 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
+import com.atlassian.stash.repository.Repository;
+import com.atlassian.stash.user.StashUser;
 
 /**
  * Test case for the {@link ConcreteEligibilityFilterChain} class.
@@ -23,7 +25,8 @@ public class ConcreteEligibilityFilterChainTest {
   private ConcreteEligibilityFilterChain filterChain;
   private List<EligibilityFilter> filters = new ArrayList<EligibilityFilter>();
   private EligibilityFilter filter;
-  private RepositoryRefsChangedEvent event;
+  private StashUser user;
+  private Repository repo;
   
   /**
    * Setup tasks
@@ -34,7 +37,8 @@ public class ConcreteEligibilityFilterChainTest {
     filter = mock(EligibilityFilter.class);
     filters.add(filter);
     filterChain = new ConcreteEligibilityFilterChain(filters);
-    event = mock(RepositoryRefsChangedEvent.class);
+    user = mock(StashUser.class);
+    repo = mock(Repository.class);
   }
   
   /**
@@ -43,8 +47,8 @@ public class ConcreteEligibilityFilterChainTest {
    */
   @Test
   public void shouldDeliverIfFilterSaysSo() throws Exception {
-    when(filter.shouldDeliverNotification(event)).thenReturn(true);
-    assertTrue(filterChain.shouldDeliverNotification(event));
+    when(filter.shouldDeliverNotification(user,repo)).thenReturn(true);
+    assertTrue(filterChain.shouldDeliverNotification(user,repo));
   }
   
   /**
@@ -54,7 +58,7 @@ public class ConcreteEligibilityFilterChainTest {
    */
   @Test
   public void shouldNotDeliverIfFilterSaysSo() throws Exception {
-    when(filter.shouldDeliverNotification(event)).thenReturn(false);
-    assertFalse(filterChain.shouldDeliverNotification(event));
+    when(filter.shouldDeliverNotification(user,repo)).thenReturn(false);
+    assertFalse(filterChain.shouldDeliverNotification(user,repo));
   }
 }

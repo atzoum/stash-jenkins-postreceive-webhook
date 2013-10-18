@@ -6,16 +6,16 @@
  */
 {template .formContents}
 
-    {call aui.form.textField}
+    {call widget.aui.form.text}
         {param id: 'jenkinsBase' /}
-        {param isRequired: true /}
-        {param value: $config['jenkinsBase'] /}
-        {param labelContent}
+        {param required: true /}
+        {param initialValue: $config['jenkinsBase'] /}
+        {param labelHtml}
             {stash_i18n('stash.webhook.jenkins.url.label', 'Jenkins URL')}
         {/param}
-        {param descriptionText: stash_i18n('stash.webhook.jenkins.url.description', 'URL to the Jenkins instance. Example: https://jenkins.example.com') /}
-        {param extraClasses: 'long' /}
-        {param errorTexts: $errors ? $errors['jenkinsBase'] : null /}
+        {param description: stash_i18n('stash.webhook.jenkins.url.description', 'URL to the Jenkins instance. Example: https://jenkins.example.com') /}
+        {param sizeClass: 'long' /}
+        {param errors: $errors ? $errors['jenkinsBase'] : null /}
     {/call}
 
     <div class="field-group">
@@ -58,15 +58,51 @@
     
     <h3>{stash_i18n('stash.webhook.advancedConfiguration.label', 'Advanced Configuration')}</h3>
       
-    {call aui.form.textField}
+    {call widget.aui.form.text}
         {param id: 'ignoreCommitters' /}
-        {param value: $config['ignoreCommitters'] /}
-        {param labelContent}
+        {param initialValue: $config['ignoreCommitters'] /}
+        {param labelHtml}
             {stash_i18n('stash.webhook.ignoreCommitters.label', 'Committers to Ignore')}
         {/param}
-        {param descriptionText: stash_i18n('stash.webhook.ignoreCommitters.description', 'Stash usernames of committer(s) whose pushes/merges should NOT trigger a Jenkins notification. Space delimited') /}
-        {param extraClasses: 'long' /}
-        {param errorTexts: $errors ? $errors['ignoreCommitters'] : null /}
+        {param description: stash_i18n('stash.webhook.ignoreCommitters.description', 'Stash usernames of committer(s) whose pushes/merges should NOT trigger a Jenkins notification. Space delimited') /}
+        {param sizeClass: 'long' /}
+        {param errors: $errors ? $errors['ignoreCommitters'] : null /}
+    {/call}
+    
+    <hr />
+    
+    <h3>{stash_i18n('stash.webhook.pullRequestConfiguration.label', 'Pull Requests Configuration')}</h3>
+    
+    {call widget.aui.form.checkbox}
+        {param id: 'notifyPullRequests' /}
+        {param checked: $config['notifyPullRequests'] /}
+        {param labelHtml}
+            {stash_i18n('stash.webhook.notifyPullRequests.label', 'Notify Jenkins on new pull requests')}
+        {/param}
+        {param description: stash_i18n('stash.webhook.notifyPullRequests.description', 'When a new pull request event is fired, Jenkins will be notified') /}
+    {/call}
+     
+    {call widget.aui.form.text}
+        {param id: 'pullRequestsNotificationUrl' /}
+        {param required: true /}
+        {param initialValue: $config['pullRequestsNotificationUrl'] /}
+        {param labelHtml}
+            {stash_i18n('stash.webhook.pullRequestsNotificationUrl.label', 'Jenkins pull request notification URL')}
+        {/param}
+        {param descriptionContent}
+        	Example: <code>https://jenkins.example.com/job_url?pullrequestnum=$pr</code>
+        	<dl>
+			  <dt>Variables</dt>
+			  <dd><code>$pr</code>: The pull request id</dd>
+			  <dd><code>$fr</code>: The identifier of the 'from' reference</dd>
+			  <dd><code>$fh</code>: The hash of the changeset referred to by the 'from' reference</dd>
+			  <dd><code>$tr</code>: The identifier of the 'to' reference</dd>
+			  <dd><code>$th</code>: The hash of the changeset referred to by the 'to' reference</dd>
+			  <dd><code>$event</code>: The type of the event, one of <code>opened, rescoped, merged, declined</code></dd>
+			</dl>
+        {/param}
+        {param sizeClass: 'long' /}
+        {param errors: $errors ? $errors['pullRequestsNotificationUrl'] : null /}
     {/call}
     
     <script>

@@ -42,5 +42,14 @@ public class PostReceiveHook implements AsyncPostReceiveRepositoryHook,
       errors.addFieldError(Notifier.CLONE_URL, 
           "The repository clone url is required");
     }
+    
+    final Boolean notifyOnPullRequests = settings.getBoolean(Notifier.NOTIFY_PULL_REQUESTS, false);
+    if (notifyOnPullRequests) {
+    	final String pullRequestNotificationUrl = settings.getString(Notifier.PULL_REQUESTS_NOTIFICATION_URL);
+	    if (Strings.isNullOrEmpty(pullRequestNotificationUrl)) {
+	      errors.addFieldError(Notifier.PULL_REQUESTS_NOTIFICATION_URL, 
+	          "The pull request notification url is required");
+	    }
+    }
   }
 }

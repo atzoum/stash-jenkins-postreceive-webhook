@@ -3,8 +3,9 @@ package com.nerdwin15.stash.webhook.service.eligibility;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.atlassian.stash.event.RepositoryRefsChangedEvent;
+import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
+import com.atlassian.stash.user.StashUser;
 import com.nerdwin15.stash.webhook.Notifier;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 
@@ -32,11 +33,10 @@ public class IgnoreCommittersEligibilityFilter implements EligibilityFilter {
   }
 
   @Override
-  public boolean shouldDeliverNotification(RepositoryRefsChangedEvent event) {
-    String eventUserName = event.getUser().getName();
+  public boolean shouldDeliverNotification(StashUser user, Repository repository) {
+    String eventUserName = user.getName();
 
-    final Settings settings = settingsService.getSettings(
-        event.getRepository());
+    final Settings settings = settingsService.getSettings(repository);
     String ignoreCommitters = settings.getString(Notifier.IGNORE_COMMITTERS);
     if (ignoreCommitters == null)
       return true;

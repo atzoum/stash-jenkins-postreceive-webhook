@@ -11,6 +11,7 @@ import org.junit.Test;
 import com.atlassian.stash.event.RepositoryRefsChangedEvent;
 import com.atlassian.stash.repository.Repository;
 import com.atlassian.stash.setting.Settings;
+import com.atlassian.stash.user.StashUser;
 import com.nerdwin15.stash.webhook.service.SettingsService;
 import com.nerdwin15.stash.webhook.service.eligibility.EligibilityFilterChain;
 
@@ -44,12 +45,14 @@ public class RepositoryChangeListenerTest {
   @Test
   public void shouldNotifyWhenChainSaysOk() throws Exception {
     RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
+    StashUser u = mock(StashUser.class);
     Repository repo = mock(Repository.class);
     Settings settings = mock(Settings.class);
 
+    when(e.getUser()).thenReturn(u);
     when(e.getRepository()).thenReturn(repo);
     when(settingsService.getSettings(repo)).thenReturn(settings);
-    when(filterChain.shouldDeliverNotification(e)).thenReturn(true);
+    when(filterChain.shouldDeliverNotification(u,repo)).thenReturn(true);
 
     listener.onRefsChangedEvent(e);
 
@@ -61,13 +64,15 @@ public class RepositoryChangeListenerTest {
    */
   @Test
   public void shouldNotifyWhenChainSaysCancel() throws Exception {
-    RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
-    Repository repo = mock(Repository.class);
-    Settings settings = mock(Settings.class);
+	RepositoryRefsChangedEvent e = mock(RepositoryRefsChangedEvent.class);
+	StashUser u = mock(StashUser.class);
+	Repository repo = mock(Repository.class);
+	Settings settings = mock(Settings.class);
 
+	when(e.getUser()).thenReturn(u);
     when(e.getRepository()).thenReturn(repo);
     when(settingsService.getSettings(repo)).thenReturn(settings);
-    when(filterChain.shouldDeliverNotification(e)).thenReturn(false);
+    when(filterChain.shouldDeliverNotification(u,repo)).thenReturn(false);
 
     listener.onRefsChangedEvent(e);
 

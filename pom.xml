@@ -157,8 +157,44 @@
     </properties>
 
     <scm>
-        <connection>scm:git:ssh://git@github.com/Nerdwin15/stash-jenkins-postreceive-webhook.git</connection>
-        <developerConnection>scm:git:ssh://git@github.com/Nerdwin15/stash-jenkins-postreceive-webhook.git</developerConnection>
-        <url>https://github.com/Nerdwin15/stash-jenkins-postreceive-webhook</url>
+        <connection>scm:git:ssh://git@github.com/atzoum/stash-jenkins-postreceive-webhook.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/atzoum/stash-jenkins-postreceive-webhook.git</developerConnection>
+        <url>https://github.com/atzoum/stash-jenkins-postreceive-webhook</url>
     </scm>
+    
+    <profiles>
+    	<profile>
+    		<id>full</id>
+    		<build>
+    			<plugins>
+    				<plugin>
+				        <groupId>org.apache.maven.plugins</groupId>
+				        <artifactId>maven-shade-plugin</artifactId>
+				        <version>2.1</version>
+				        <configuration>
+				        	<createDependencyReducedPom>false</createDependencyReducedPom>
+				        	<finalName>${project.artifactId}-${project.version}-full</finalName>
+				        	<artifactSet>
+							  <includes>
+							    <include>*:commons-codec</include>
+							    <include>*:commons-lang</include>
+							    <include>*:commons-logging</include>
+							    <include>*:httpclient</include>
+							    <include>*:gson</include>
+							  </includes>
+							</artifactSet>
+				        </configuration>
+				        <executions>
+				          <execution>
+				            <phase>package</phase>
+				            <goals>
+				              <goal>shade</goal>
+				            </goals>
+				          </execution>
+				        </executions>
+				      </plugin>
+    			</plugins>
+    		</build>
+    	</profile>
+    </profiles>
 </project>

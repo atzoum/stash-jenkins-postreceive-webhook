@@ -16,6 +16,7 @@
     
     <component key="settingsRetriever" class="com.nerdwin15.stash.webhook.service.ConcreteSettingsService" />
     <component key="jenkinsRepoChangeListener" class="com.nerdwin15.stash.webhook.RepositoryChangeListener"/>
+    <component key="jenkinsPullRequestListener" class="com.nerdwin15.stash.webhook.PullRequestEventListener"/>
     <component key="jenkinsNotifier" class="com.nerdwin15.stash.webhook.Notifier"/>
     <component key="clientFactory" class="com.nerdwin15.stash.webhook.service.ConcreteHttpClientFactory"/>
     <component-import key="sshCloneUrlResolver" interface="com.atlassian.stash.ssh.api.SshCloneUrlResolver"/>
