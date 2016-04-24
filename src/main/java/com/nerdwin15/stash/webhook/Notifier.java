@@ -159,6 +159,16 @@ public class Notifier implements DisposableBean {
       }
     });
   }
+  
+  @Nonnull
+  public Future<NotificationResult> notifyBackground(@Nonnull final PullRequestEvent event) {
+    return executorService.submit(new Callable<NotificationResult>() {
+      @Override
+      public NotificationResult call() throws Exception {
+        return Notifier.this.notifyPullRequest(event);
+      }
+    });
+  }
 
   /**
    * Send notification to Jenkins for the provided repository.
@@ -244,20 +254,20 @@ public class Notifier implements DisposableBean {
     executorService.shutdownNow();
   }
   
-  public @Nullable String notifyPullRequest(@Nonnull PullRequestEvent event) {
+  public @Nullable NotificationResult notifyPullRequest(@Nonnull PullRequestEvent event) {
 	  PullRequest pullRequest = event.getPullRequest();
 	  final Repository repo = pullRequest.getToRef().getRepository();
 	  final RepositoryHook hook = settingsService.getRepositoryHook(repo);
 	    final Settings settings = settingsService.getSettings(repo);
 	    if (hook == null || !hook.isEnabled() || settings == null) {
 	      LOGGER.debug("Hook not configured correctly or not enabled, returning.");
-	      return null;
+	      return new NotificationResult(false, null, "Hook not configured correctly or not enabled.");
 	    }
 	    
 	    final Boolean notify = settings.getBoolean(NOTIFY_PULL_REQUESTS, false);
 	    if (!notify) {
 	    	LOGGER.debug("Pull requests notifications not enabled, returning.");
-	    	return null;
+	    	return new NotificationResult(false, null, "Pull requests notifications not enabled.");
 	    }
 	    
 	    String eventName = event.getClass().getSimpleName().replaceAll("PullRequest", "").replaceAll("Event", "").toLowerCase();
@@ -278,8 +288,7 @@ public class Notifier implements DisposableBean {
 	          HttpResponse response = client.execute(new HttpGet(url));
 	          LOGGER.debug("Successfully triggered jenkins with url '{}': ", url);
 	          InputStream content = response.getEntity().getContent();
-	          return CharStreams.toString(
-	              new InputStreamReader(content, Charsets.UTF_8));
+	          return new NotificationResult(true, url, CharStreams.toString(new InputStreamReader(content, Charsets.UTF_8)));
 	        } catch (Exception e) {
 	          LOGGER.error("Error triggering jenkins with url '" + url + "'", e);
 	        } finally {
@@ -288,7 +297,7 @@ public class Notifier implements DisposableBean {
 	            LOGGER.debug("Successfully shutdown connection");
 	          }
 	        }
-	        return null;
+	        return new NotificationResult(false, null, null);
   }
 
   /**

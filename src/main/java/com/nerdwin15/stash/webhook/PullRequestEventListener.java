@@ -1,6 +1,7 @@
 package com.nerdwin15.stash.webhook;
 
 import com.atlassian.event.api.EventListener;
+import com.atlassian.stash.event.pull.PullRequestCommentAddedEvent;
 import com.atlassian.stash.event.pull.PullRequestDeclinedEvent;
 import com.atlassian.stash.event.pull.PullRequestEvent;
 import com.atlassian.stash.event.pull.PullRequestMergedEvent;
@@ -18,78 +19,76 @@ import com.nerdwin15.stash.webhook.service.eligibility.EventContext;
  * @author Melvyn de Kort (lordmatanza)
  */
 public class PullRequestEventListener {
-  
-  private final EligibilityFilterChain filterChain;
-  private final Notifier notifier;
-  private final SettingsService settingsService;
 
-  /**
-   * Construct a new instance.
-   * @param filterChain The filter chain to test for eligibility
-   * @param notifier The notifier service
-   * @param settingsService Service to be used to get the Settings
-   */
-  public PullRequestEventListener(EligibilityFilterChain filterChain,
-      Notifier notifier, SettingsService settingsService) {
-    this.filterChain = filterChain;
-    this.notifier = notifier;
-    this.settingsService = settingsService;
-  }
-  
-  /**
-   * Event listener that is notified of pull request open events
-   * @param event The pull request event
-   */
-  @EventListener
-  public void onPullRequestOpened(PullRequestOpenedEvent event) {
-    handleEvent(event);
-  }
-  
-  /**
-   * Event listener that is notified of pull request reopen events
-   * @param event The pull request event
-   */
-  @EventListener
-  public void onPullRequestReopened(PullRequestReopenedEvent event) {
-    handleEvent(event);
-  }
-  
-  	@EventListener
-	public void onPullRequestRescoped(PullRequestRescopedEvent event) {
-	  handleEvent(event);
+	private final EligibilityFilterChain filterChain;
+	private final Notifier notifier;
+	private final SettingsService settingsService;
+
+	/**
+	 * Construct a new instance.
+	 * 
+	 * @param filterChain
+	 *            The filter chain to test for eligibility
+	 * @param notifier
+	 *            The notifier service
+	 * @param settingsService
+	 *            Service to be used to get the Settings
+	 */
+	public PullRequestEventListener(EligibilityFilterChain filterChain, Notifier notifier,
+			SettingsService settingsService) {
+		this.filterChain = filterChain;
+		this.notifier = notifier;
+		this.settingsService = settingsService;
 	}
-	
+
+	@EventListener
+	public void onPullRequestOpened(PullRequestOpenedEvent event) {
+		handleEvent(event);
+	}
+
+	@EventListener
+	public void onPullRequestReopened(PullRequestReopenedEvent event) {
+		handleEvent(event);
+	}
+
+	@EventListener
+	public void onPullRequestRescoped(PullRequestRescopedEvent event) {
+		handleEvent(event);
+	}
+
 	@EventListener
 	public void onPullRequestMerged(PullRequestMergedEvent event) {
 		handleEvent(event);
 	}
-	
+
 	@EventListener
 	public void onPullRequestDeclined(PullRequestDeclinedEvent event) {
 		handleEvent(event);
 	}
-  
-  /**
-   * Actually handles the event that was triggered. 
-   * (Made protected to make unit testing easier)
-   * @param event The event to be handled
-   */
-  protected void handleEvent(PullRequestEvent event) {
-    if (settingsService.getSettings(event.getPullRequest().getToRef().getRepository()) == null) {
-      return;
-    }
 
-    String strRef = event.getPullRequest().getFromRef().toString().replaceFirst(".*refs/heads/", "");
-    String strSha1 = event.getPullRequest().getFromRef().getLatestChangeset();
+	@EventListener
+	public void onPullRequestCommentAdded(PullRequestCommentAddedEvent event) {
+		handleEvent(event);
+	}
 
-    EventContext context = new EventContext(event,
-        event.getPullRequest().getToRef().getRepository(),
-        event.getUser());
+	/**
+	 * Actually handles the event that was triggered. (Made protected to make
+	 * unit testing easier)
+	 * 
+	 * @param event
+	 *            The event to be handled
+	 */
+	protected void handleEvent(PullRequestEvent event) {
+		if (settingsService.getSettings(event.getPullRequest().getToRef().getRepository()) == null) {
+			return;
+		}
 
-    if (filterChain.shouldDeliverNotification(context)) {
-      notifier.notifyBackground(context.getRepository(), strRef, strSha1);
-      //notifier.notifyPullRequest(event);
-    }
-  }
-  
+		EventContext context = new EventContext(event, event.getPullRequest().getToRef().getRepository(),
+				event.getUser());
+
+		if (filterChain.shouldDeliverNotification(context)) {
+			notifier.notifyBackground(event);
+		}
+	}
+
 }

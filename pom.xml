@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.nerdwin15.stash</groupId>
+    <groupId>gr.trasys</groupId>
     <artifactId>stash-webhook-jenkins</artifactId>
     <version>2.7.0</version>
 
     <organization>
-        <name>Nerdwin15</name>
-        <url>http://www.nerdwin15.com/</url>
+        <name>Trasys</name>
+        <url>http://www.trasys.be/</url>
     </organization>
 
     <name>Stash Webhook to Jenkins</name>
@@ -171,10 +171,10 @@
     </build>
 
     <properties>
-        <stash.version>2.4.0</stash.version>
-        <stash.data.version>2.4.0</stash.data.version>
-        <stash.containerId>tomcat7x</stash.containerId>
-        <amps.version>5.0.6</amps.version>
+        <stash.version>3.9.2</stash.version>
+        <stash.data.version>3.9.2</stash.data.version>
+        <stash.containerId>tomcat8x</stash.containerId>
+        <amps.version>6.2.4</amps.version>
         <plugin.testrunner.version>1.1.1</plugin.testrunner.version>
         <powermock.version>1.4.9</powermock.version>
     </properties>
